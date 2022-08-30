@@ -1,0 +1,40 @@
+---
+- name: retrieve network configurations
+  hosts: network
+  gather_facts: no
+
+  tasks:
+    
+    - name: create time stamp for play
+      set_fact:
+        datetime: "{{ lookup('pipe','date +%Y-%m-%d-%H-%M') }}"
+      delegate_to: backup-server
+      delegate_facts: true
+      run_once: true
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /backup/
+        state: directory
+      delegate_to: backup-server
+      become: true
+      run_once: true
+    
+    - name: capture show tech
+      ios_command:
+        commands:
+          - show tech
+        register: config
+
+     - name: save output to local directory
+       copy:
+         content: "{{ config.stdout | replace('\\n', '\n') }}"
+         dest: "/tmp/{{ inventory_hostname }}.cfg"
+
+    - name: save configuration to backup server
+      copy:
+        src: "/tmp/{{ inventory_hostname }}.cfg"
+        dest: "/backup/{{hostvars['backup-server'].datetime}}/"
+      when: config_output is defined
+      become: true
+      delegate_to: backup-server
