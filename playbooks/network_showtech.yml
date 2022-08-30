@@ -24,7 +24,7 @@
       ios_command:
         commands:
           - show tech
-        register: config
+      register: config
 
     - name: save output to local directory
       copy:
