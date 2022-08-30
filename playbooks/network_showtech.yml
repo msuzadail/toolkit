@@ -26,10 +26,10 @@
           - show tech
         register: config
 
-     - name: save output to local directory
-       copy:
-         content: "{{ config.stdout | replace('\\n', '\n') }}"
-         dest: "/tmp/{{ inventory_hostname }}.cfg"
+    - name: save output to local directory
+      copy:
+        content: "{{ config.stdout | replace('\\n', '\n') }}"
+        dest: "/tmp/{{ inventory_hostname }}.cfg"
 
     - name: save configuration to backup server
       copy:
